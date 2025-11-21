@@ -1,6 +1,5 @@
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
-import { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,47 +8,43 @@ import {
   View,
 } from "react-native";
 import * as Yup from "yup";
+import { useState } from "react";
 
-interface EmployeeFormValues {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  position: string;
-  address: string;
-}
-
-export default function Index() {
-  const [submitMessage, setSubmitMessage] = useState(false);
+export default function SignUp() {
   const router = useRouter();
+  const [submitMessage, setSubmitMessage] = useState(false);
 
+  // Validation Schema
   const validationSchema = Yup.object().shape({
-    firstName: Yup.string()
-      .required("First name cannot be empty")
-      .min(3, "First name has to be at least 3 characters"),
-    lastName: Yup.string()
-      .required("Last name cannot be empty")
-      .min(3, "Last name has to be at least 3 characters"),
-    position: Yup.string().required("Position cannot be empty"),
-    phoneNumber: Yup.string()
-      .required("Phone number cannot be empty")
-      .matches(/^[0-9]{10}$/, "Phone number must be 10 digits"),
-    address: Yup.string().required("Address cannot be empty"),
+    firstName: Yup.string().required("First name cannot be empty"),
+    lastName: Yup.string().required("Last name cannot be empty"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email cannot be empty"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password cannot be empty"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password")], "Passwords must match")
+      .required("Confirm password cannot be empty"),
   });
 
-  function submitForm(values: EmployeeFormValues) {
-    console.log("Employee Value:", values);
-    setSubmitMessage(!submitMessage);
+  // Submit Logic
+  function submitForm() {
+    setSubmitMessage(true);
   }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Employee Information Form</Text>
-      <Formik<EmployeeFormValues>
+      <Text style={styles.title}>Sign-Up</Text>
+
+      <Formik
         initialValues={{
           firstName: "",
           lastName: "",
-          position: "",
-          phoneNumber: "",
-          address: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
         }}
         validationSchema={validationSchema}
         onSubmit={submitForm}
@@ -63,88 +58,90 @@ export default function Index() {
           touched,
         }) => (
           <>
+            {/* First Name */}
             <TextInput
               style={styles.inputFields}
-              onBlur={handleBlur("firstName")}
+              placeholder="First Name"
               value={values.firstName}
               onChangeText={handleChange("firstName")}
-              placeholder="First Name"
+              onBlur={handleBlur("firstName")}
             />
             {errors.firstName && touched.firstName ? (
               <Text style={styles.errorText}>{errors.firstName}</Text>
             ) : null}
 
+            {/* Last Name */}
             <TextInput
               style={styles.inputFields}
-              onBlur={handleBlur("lastName")}
+              placeholder="Last Name"
               value={values.lastName}
               onChangeText={handleChange("lastName")}
-              placeholder="Last Name"
+              onBlur={handleBlur("lastName")}
             />
             {errors.lastName && touched.lastName ? (
               <Text style={styles.errorText}>{errors.lastName}</Text>
             ) : null}
 
+            {/* Email */}
             <TextInput
               style={styles.inputFields}
-              onBlur={handleBlur("position")}
-              value={values.position}
-              onChangeText={handleChange("position")}
-              placeholder="Position"
+              placeholder="Email"
+              value={values.email}
+              onChangeText={handleChange("email")}
+              onBlur={handleBlur("email")}
             />
-            {errors.position && touched.position ? (
-              <Text style={styles.errorText}>{errors.position}</Text>
+            {errors.email && touched.email ? (
+              <Text style={styles.errorText}>{errors.email}</Text>
             ) : null}
 
+            {/* Password */}
             <TextInput
               style={styles.inputFields}
-              onBlur={handleBlur("phoneNumber")}
-              value={values.phoneNumber}
-              onChangeText={handleChange("phoneNumber")}
-              placeholder="Phone Number"
+              placeholder="Password"
+              secureTextEntry
+              value={values.password}
+              onChangeText={handleChange("password")}
+              onBlur={handleBlur("password")}
             />
-            {errors.phoneNumber && touched.phoneNumber ? (
-              <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+            {errors.password && touched.password ? (
+              <Text style={styles.errorText}>{errors.password}</Text>
             ) : null}
 
+            {/* Confirm Password */}
             <TextInput
               style={styles.inputFields}
-              onBlur={handleBlur("address")}
-              value={values.address}
-              onChangeText={handleChange("address")}
-              placeholder="Address"
+              placeholder="Confirm Password"
+              secureTextEntry
+              value={values.confirmPassword}
+              onChangeText={handleChange("confirmPassword")}
+              onBlur={handleBlur("confirmPassword")}
             />
-            {errors.address && touched.address ? (
-              <Text style={styles.errorText}>{errors.address}</Text>
+            {errors.confirmPassword && touched.confirmPassword ? (
+              <Text style={styles.errorText}>{errors.confirmPassword}</Text>
             ) : null}
 
+            {/* Submit Button */}
             <TouchableOpacity
               style={styles.button}
               onPress={() => handleSubmit()}
             >
-              <Text style={styles.buttonText}>Submit</Text>
+              <Text style={styles.buttonText}>Sign up</Text>
             </TouchableOpacity>
 
             {submitMessage ? (
-              <Text style={styles.submitText}>Form Submitted Successfully</Text>
+              <Text style={styles.submitText}>Signed up successfully</Text>
             ) : null}
           </>
         )}
       </Formik>
+
+      {/* Navigation Buttons */}
       <View style={styles.authenticationButtonsContainer}>
         <TouchableOpacity
           style={styles.authenticationButton}
           onPress={() => router.push("./sign-in")}
         >
-          <Text style={styles.authenticationButtonText}>Sign-In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.authenticationButton}>
-          <Text
-            style={styles.authenticationButtonText}
-            onPress={() => router.push("./sign-up")}
-          >
-            Sign-Up
-          </Text>
+          <Text style={styles.authenticationButtonText}>Go to Sign-In</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -176,8 +173,8 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     fontSize: 13,
-    textAlign: "left",
     width: "70%",
+    textAlign: "left",
   },
   button: {
     marginVertical: 10,
@@ -199,18 +196,18 @@ const styles = StyleSheet.create({
   },
   authenticationButtonsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     width: "70%",
-    marginTop: 5,
-  },
-  authenticationButtonText: {
-    fontWeight: "bold",
-    textAlign: "center",
+    marginTop: 10,
   },
   authenticationButton: {
     width: "48%",
     padding: 10,
     borderRadius: 8,
     backgroundColor: "grey",
+  },
+  authenticationButtonText: {
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });

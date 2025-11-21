@@ -95,7 +95,7 @@ export default function SignIn() {
       <View style={styles.authenticationButtonsContainer}>
         <TouchableOpacity
           style={styles.authenticationButton}
-          onPress={() => router.push("")}
+          onPress={() => router.push("./sign-up")}
         >
           <Text style={styles.authenticationButtonText}>Go to Sign-Up</Text>
         </TouchableOpacity>

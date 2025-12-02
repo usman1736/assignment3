@@ -1,5 +1,7 @@
+import { userSignUp } from "@/firebaase/authHelpers";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
+import { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,11 +10,11 @@ import {
   View,
 } from "react-native";
 import * as Yup from "yup";
-import { useState } from "react";
 
 export default function SignUp() {
   const router = useRouter();
   const [submitMessage, setSubmitMessage] = useState(false);
+  const [error, setError] = useState(null);
 
   // Validation Schema
   const validationSchema = Yup.object().shape({
@@ -30,8 +32,13 @@ export default function SignUp() {
   });
 
   // Submit Logic
-  function submitForm() {
-    setSubmitMessage(true);
+  async function submitForm(values: { email: string; password: string }) {
+    const { user, error } = await userSignUp(values.email, values.password);
+    if (error || !user) {
+      setError(error);
+      return;
+    }
+    router.replace("");
   }
 
   return (

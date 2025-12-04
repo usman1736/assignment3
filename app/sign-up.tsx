@@ -2,6 +2,7 @@ import { userSignUp } from "@/firebaase/authHelpers";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import { useState } from "react";
+import { saveUserProfile } from "@/firebaase/firestoreHelpers";
 import {
   StyleSheet,
   Text,
@@ -32,14 +33,31 @@ export default function SignUp() {
   });
 
   // Submit Logic
-  async function submitForm(values: { email: string; password: string }) {
+  async function submitForm(values: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }) {
     const { user, error } = await userSignUp(values.email, values.password);
+
     if (error || !user) {
       setError(error);
       return;
     }
-    router.replace("");
+
+    // Save profile to Firestore
+    await saveUserProfile(user.uid, {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+    });
+
+    // Go to homepage
+    router.replace("/home");
   }
+
 
   return (
     <View style={styles.container}>

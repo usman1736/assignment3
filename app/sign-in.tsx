@@ -34,7 +34,7 @@ export default function SignIn() {
       setError(error);
       return;
     }
-    router.replace("/");
+    router.replace("/home");
   }
 
   return (
